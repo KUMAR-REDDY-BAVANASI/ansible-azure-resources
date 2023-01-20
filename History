@@ -1,0 +1,29 @@
+    1  ls
+    2  sudo apt update -y && apt upgrade -y
+    3  sudo apt install python3-pip
+    4  pip3 install ansible==2.10.10
+    5  pip3 install ansible==2.10.7
+    6  ansible --version
+    7  pip3 install --upgrade pip
+    8  sudo apt install ansible
+    9  ansible-galaxy collection install azure.azcollection
+   10  wget https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
+   11  sudo pip3 install -r requirements-azure.txt
+   12  history
+   13  mkdir ~/.azure
+   14  vi ~/.azure/credentials
+   15  ls
+   16  git clone https://github.com/KUMAR-BAVANASI/Azure_Ansible_Poc_Neatly.git
+   17  ls
+   18  cd Azure_Ansible_Poc_Neatly/
+   19  ansible-playbook rg.yaml 
+   20  history
+   21  root@Demo-VM:~# ansible --version
+   
+  ansible 2.10.10
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = ['/root/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.6/dist-packages/ansible
+  executable location = /usr/local/bin/ansible
+  python version = 3.6.9 (default, Jan 26 2021, 15:33:00) [GCC 8.4.0]
+

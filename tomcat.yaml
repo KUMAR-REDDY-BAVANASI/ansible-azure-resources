@@ -1,0 +1,43 @@
+---
+- name: install tomcat server
+  hosts: localhost
+  become: true
+  vars:
+   version: 8.5.64
+
+  tasks:
+  - name: install java
+    apt:
+      name: openjdk-11-jdk
+      state: latest
+
+  - name: download tomcat server packages
+    get_url:
+      url: https://mirror.lyrahosting.com/apache/tomcat/tomcat-8/v{{ version }}/bin/apache-tomcat-{{ version }}.tar.gz
+      dest: /usr/local
+      
+  - name: extract tomcat packages
+    unarchive:
+      src: /usr/local/apache-tomcat-{{version}}.tar.gz
+      dest: /usr/local
+      remote_src: yes
+
+  - name: download shoppingcart
+    get_url:
+      url: https://www.oracle.com/webfolder/technetwork/tutorials/obe/fmw/wls/10g/r3/cluster/session_state/files/shoppingcart.zip
+      dest: /opt
+
+  - name: extract shoppingcart
+    unarchive:
+      src: /opt/shoppingcart.zip
+      dest: /opt
+      remote_src: yes
+
+  - name: deploy war file
+    copy:
+      src: /opt/shoppingcart.war
+      dest: /usr/local/apache-tomcat-{{ version }}/webapps
+
+  - name: start tomcat services
+    shell: nohup /usr/local/apache-tomcat-{{ version }}/bin/startup.sh
+

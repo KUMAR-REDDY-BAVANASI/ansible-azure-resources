@@ -1,0 +1,54 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    resource_group: rgs3
+    location: eastus
+    postgresqlserver_name: postgresqlansible
+    postgresqldb_name: sqldbtest
+    admin_username: admxyz
+    admin_password: Abcpasswordxyz12!
+
+  tasks:
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: "{{ location }}"
+
+    - name: Create PostgreSQL Server
+      azure_rm_postgresqlserver:
+        resource_group: "{{ resource_group }}"
+        name: "{{ postgresqlserver_name }}"
+        sku:
+          name: B_Gen5_1
+          tier: Basic
+          capacity: 1
+        location: "{{ location }}"
+        enforce_ssl: True
+        admin_username: "{{ admin_username }}"
+        admin_password: "{{ admin_password }}"
+        storage_mb: 51200
+
+    - name: Create instance of PostgreSQL Database
+      azure_rm_postgresqldatabase:
+        resource_group: "{{ resource_group }}"
+        server_name: "{{ postgresqlserver_name }}"
+        name: "{{ postgresqldb_name }}"
+      
+    - name: Open firewall to access MySQL Server from outside
+      azure_rm_resource:
+        api_version: '2017-12-01'
+        resource_group: "{{ resource_group }}"
+        provider: dbforpostgresql
+        resource_type: servers
+        resource_name: "{{ postgresqlserver_name }}"
+        subresource:
+          - type: firewallrules
+            name: externalaccess
+        body:
+          properties:
+            startIpAddress: "0.0.0.0"
+            endIpAddress: "255.255.255.255"
+
+# You can connect database from outside
+# psql --host=postgresqlansible.postgres.database.azure.com --port=5432 --username=admxyz@postgresqlansible --dbname=postgres

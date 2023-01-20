@@ -1,0 +1,72 @@
+---
+- hosts: localhost
+  vars:
+    resource_group: myTestRG
+    vmss_name: myScaleSet
+    name: autoscalesetting
+  tasks:
+  - name: Get facts of the resource group
+    azure_rm_resourcegroup_facts:
+      name: "{{ resource_group }}"
+    register: rg
+
+  - name: Get scale set resource uri
+    set_fact:
+      vmss_id: "{{ rg.ansible_facts.azure_resourcegroups[0].id }}/providers/Microsoft.Compute/virtualMachineScaleSets/{{ vmss_name }}"
+    
+  - name: Create autoscaling
+    azure_rm_autoscale:
+      resource_group: "{{ resource_group }}"
+      name: "{{ name }}"
+      target: "{{ vmss_id }}"
+      enabled: true
+      profiles:
+      - count: '3'
+        max_count: '5'
+        min_count: '1'
+        name: 'This scale condition is executed when none of the other scale condition(s) match'
+        recurrence_days:
+          - Monday
+        recurrence_frequency: Week
+        recurrence_hours:
+          - 18
+        recurrence_mins:
+          - 0
+        recurrence_timezone: India Standard Time
+      - count: '3'
+        min_count: '1'
+        max_count: '5'
+        name: Auto created scale condition
+        recurrence_days:
+          - Monday
+        recurrence_frequency: Week
+        recurrence_hours:
+          - 18
+        recurrence_mins:
+          - 0
+        recurrence_timezone: India Standard Time
+        rules:
+          - cooldown: 5
+            direction: Increase
+            metric_name: Percentage CPU
+            metric_resource_uri: "{{ vmss_id }}"
+            operator: GreaterThan
+            statistic: Average
+            threshold: 70
+            time_aggregation: Average
+            time_grain: 1
+            time_window: 10
+            type: ChangeCount
+            value: '1'
+          - cooldown: 5
+            direction: Decrease
+            metric_name: Percentage CPU
+            metric_resource_uri: "{{ vmss_id }}"
+            operator: LessThan
+            statistic: Average
+            threshold: 30
+            time_aggregation: Average
+            time_grain: 1
+            time_window: 10
+            type: ChangeCount
+            value: '1'

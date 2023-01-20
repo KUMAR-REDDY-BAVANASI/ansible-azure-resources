@@ -1,0 +1,56 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    resource_group: rgs3
+    location: eastus
+    mysqlserver_name: mysqlserveransible
+    mysqldb_name: mysqldbansible
+    admin_username: mysqladmin
+    admin_password: Kumar567890@ 
+
+  tasks:
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: "{{ location }}"
+        
+    - name: Create MySQL Server
+      azure_rm_mysqlserver:
+        resource_group: "{{ resource_group }}"
+        name: "{{ mysqlserver_name }}"
+        sku:
+          name: B_Gen5_1
+          tier: Basic
+        location: "{{ location }}"
+        version: 5.6
+        enforce_ssl: false
+        admin_username: "{{ admin_username }}"
+        admin_password: "{{ admin_password }}"
+        storage_mb: 51200
+        
+    - name: Create instance of MySQL Database
+      azure_rm_mysqldatabase:
+        resource_group: "{{ resource_group }}"
+        server_name: "{{ mysqlserver_name }}"
+        name: "{{ mysqldb_name }}"
+  
+    - name: Open firewall to access MySQL Server from outside
+      azure_rm_resource:
+        api_version: '2017-12-01'
+        resource_group: "{{ resource_group }}"
+        provider: dbformysql
+        resource_type: servers
+        resource_name: "{{ mysqlserver_name }}"
+        subresource:
+          - type: firewallrules
+            name: externalaccess
+        body:
+          properties:
+            startIpAddress: "0.0.0.0"
+            endIpAddress: "255.255.255.255"
+
+
+# You can connect database from outside
+# mysql -h mysqlserveransible.mysql.database.azure.com -u mysqladmin@mysqlserveransible -p
+ 

@@ -1,0 +1,67 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    resource_group: rgs3
+    location: eastus
+    aks_name: kumar
+    vnet_subnet_id: "/subscriptions/02ac19d2-71ae-471d-b697-97daef2db017/resourceGroups/rgs2/providers/Microsoft.Network/virtualNetworks/aks_vnet/subnets/aks_vnet"
+    ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCcUbYtsTIOerlCa5jyCIFDE2yWPxn649o+RS7HWP8yknVy6ZIRSIbJH6cVldLMBR1KvFIjZUzuEF9nyUM19TwwYUHbujoCDGV1hO+aiiCWSCgfyU5koD4Yr7qsR4RssgBjPPu1QF9OAKzHn0KT/ckmPiUsZgvrSdk9pHFiM24bZl+ZY4NTB3yVEWiUgxO4j5Lk0/Z01Sa6g65sbIPmUeuWmcl2i1K64dYHpLxAUfRji8i/mnMeInoVWuFEZEhY2iRe552Hc4NCVbd+ZNclCWxqHVmQHflu0op/vEtuR2y+LGqhgK6DiSW1CMohXdd+oQOuB+PSixikkzdoyeh40ah3bDCt8Of51VGmAzYyvWvJJ6t0gb/inUi2x9yR3O2piLgMrhRHnxcFaQ6yzkVRfEXopy+ilv5ltLrjjEJ9/VP4f82dBT2xxp7tlUmmVB8OQhO52D4P1FoX8jp6Nxr53vJNYR9Eyh5Lm/CUzKg92bjd5o3GkYFjNyEL3K0d7+q9f88= generated-by-azure"
+    client_id: "9a8e6324-d089-4e0e-9813-aa3f1033bf97"
+    client_secret: "AOABcdS6o-~Dr~-pF2kkMvRG5Dkk5Vp05B"
+    aks_version: 1.19.9
+    vnet_name: aks_vnet 
+
+  tasks:
+    - name: Create resource group 
+      azure_rm_resourcegroup:
+          name: "{{ resource_group }}"
+          location: "{{ location }}"
+
+    - name: Create vnet
+      azure_rm_virtualnetwork:
+          resource_group: "{{ resource_group }}"
+          name: "{{ vnet_name }}"
+          address_prefixes_cidr:
+              - 10.0.0.0/8
+
+    - name: Create subnet
+      azure_rm_subnet:
+          resource_group: "{{ resource_group }}"
+          name: "{{ vnet_name }}"
+          address_prefix_cidr: 10.240.0.0/16
+          virtual_network_name: "{{ vnet_name }}"
+      register: subnet
+      
+    - debug: var=subnet
+
+    - name: Create AKS cluster within a VNet
+      azure_rm_aks:
+          resource_group: "{{ resource_group }}"
+          name: "{{ aks_name }}"
+          dns_prefix: "{{ aks_name }}"
+          kubernetes_version: "{{ aks_version }}"
+          agent_pool_profiles:
+            - count: 2
+              name: nodepools
+              vm_size: Standard_D2_v2
+              vnet_subnet_id: "{{ vnet_subnet_id }}"
+          linux_profile:
+              admin_username: azureuser
+              ssh_key: "{{ ssh_key }}"
+          service_principal:
+              client_id: "{{ client_id }}"
+              client_secret: "{{ client_secret }}"
+          network_profile:
+              network_plugin: azure
+              docker_bridge_cidr: 172.17.0.1/16
+              dns_service_ip: 10.2.0.10
+              service_cidr: 10.2.0.0/24
+      register: aks_info
+
+    - debug: 
+        var: aks_info
+
+
+#In Server u can update the kubeconfig file under cluster
+#az aks get-credentials --resource-group rgs2 --name <clustername>

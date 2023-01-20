@@ -1,0 +1,41 @@
+- name: Create an Storage Account
+  hosts: localhost
+  become: yes
+  vars:
+    resource_group: rgs3
+    location: eastus
+    account_name: kumaraccount01
+    account_type: Standard_RAGRS
+
+  
+  tasks:
+  - name: Create new storage account
+    azure_rm_storageaccount:
+      resource_group: "{{ resource_group }}"
+      name: "{{ account_name }}"
+      account_type: "{{ account_type }}"
+      state: present
+    register: output
+
+  - debug: var=output
+
+  - name: Create container and upload a file
+    azure_rm_storageblob:
+      resource_group: "{{ resource_group }}" 
+      storage_account_name: "{{ account_name }}"
+      container_name: myblob1
+      blob_name: 'solar.jpg'
+      src: './images/solar.jpg'
+      public_access: container
+      content_type: 'image/png'
+    register: create_facts
+    
+  - debug: var=create_facts
+
+  - name: Download the file
+    azure_rm_storageblob:
+      resource_group: "{{ resource_group }}" 
+      storage_account_name: "{{ account_name }}"
+      container_name: myblob1
+      blob_name: 'solar.jpg'
+      dest: '~/tmp/images/solar.jpg'

@@ -1,0 +1,19 @@
+- name: Capture VM Images
+  hosts: localhost
+  vars:
+    vm_name: Demo-VM
+    resource_group: rgs3
+
+  tasks:
+  - name: Stop and generalize VMs
+    azure_rm_virtualmachine:
+      resource_group: "{{ resource_group }}"
+      name: "{{ vm_name }}"
+      generalized: yes
+
+  - name: Create an images from a VMs
+    azure_rm_image:
+      resource_group: "{{ resource_group }}"
+      name: "image_{{ vm_name }}"
+      source: "{{ vm_name }}"
+

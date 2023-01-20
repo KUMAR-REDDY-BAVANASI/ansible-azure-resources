@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  vars:
+    rg_name: rgs3
+    location: east us  
+
+  tasks: 
+  - name: Create rg
+    azure_rm_resourcegroup:
+     name: "{{ rg_name }}"
+     location: "{{ location }}"
+    register: rg
+  - debug:
+      var: rg
+
+  # - name: Delete a resource group
+  #   azure_rm_resourcegroup:
+  #     name: rgs2
+  #     state: absent
+

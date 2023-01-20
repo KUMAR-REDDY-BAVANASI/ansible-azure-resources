@@ -1,0 +1,20 @@
+- name: Create Azure Container Registry
+  hosts: localhost
+  become: yes
+  vars:
+    resource_group: rgs3
+    location: eastus
+
+  tasks:
+  - name: Create an azure container registry
+    azure_rm_containerregistry:
+      name: sample123
+      state: present
+      location: "{{ location }}"
+      resource_group: "{{ resource_group }}"
+      admin_user_enabled: yes
+      sku: Basic
+      tags:
+          Environment: Poc
+
+

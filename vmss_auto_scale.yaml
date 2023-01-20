@@ -1,0 +1,29 @@
+---
+- hosts: localhost
+  vars:
+    resource_group: myTestRG
+    vmss_name: myScaleSet
+    name: autoscalesetting
+  tasks: 
+    - name: Create autoscaling
+      azure_rm_autoscale:
+         resource_group: "{{ resource_group }}"
+         name: "{{ name }}"
+         target:
+           namespace: "Microsoft.Compute"
+           types: "virtualMachineScaleSets"
+           name: "{{ vmss_name }}"
+         enabled: true
+         profiles:
+         - count: '4'
+           min_count: '2'
+           max_count: '6'
+           name: Auto created scale condition
+           recurrence_timezone: India Standard Time
+           recurrence_frequency: Week
+           recurrence_days:
+              - Monday
+           recurrence_mins:
+              - '0'
+           recurrence_hours:
+              - '10'

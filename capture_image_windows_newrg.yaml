@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  vars:
+    image_rg_name: rgs
+    location: east us
+    vm_name: Demo-VM
+    resource_group: rgs2
+
+  tasks:
+    - name: Create image rg
+      azure_rm_resourcegroup:
+       name: "{{ image_rg_name }}"
+       location: "{{ location }}"
+      register: rg
+    - debug:
+        var: rg
+
+    - name: Stop and generalize VMs
+      azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vm_name }}"
+        started: no
+        generalized: yes
+
+    - name: Create an images from a VMs
+      azure_rm_image:
+        resource_group: "{{ image_rg_name }}"
+        name: "image_windows_{{ vm_name }}"
+        source: "/subscriptions/02ac19d2-71ae-471d-b697-97daef2db017/resourceGroups/RGS2/providers/Microsoft.Compute/disks/Demo-VM"
+        os_type: Windows

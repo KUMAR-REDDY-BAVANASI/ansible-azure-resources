@@ -1,0 +1,94 @@
+---
+- name: Create Azure VM
+  hosts: localhost
+  connection: local
+  vars:
+    resource_group: rgs
+    location: eastus
+    vnet_name: myVNet
+    subnet_name: mySubnet
+    public_ip: myPublicIP
+    vm_name: Demo-VM
+    admin_username: bos
+    admin_password: AzureLogin@1234
+    vm_size: Standard_DS1_v2
+    image_name: image_Demo-VM
+
+  tasks:
+  - name: Create resource group
+    azure_rm_resourcegroup:
+      name: "{{ resource_group }}"
+      location: "{{ location }}"
+    register: rg
+  - debug:
+          var: rg
+
+  - name: Create virtual network
+    azure_rm_virtualnetwork:
+      resource_group: "{{ resource_group }}"
+      name: "{{ vnet_name }}"
+      address_prefixes: "10.0.0.0/16"
+
+
+  - name: Add subnet
+    azure_rm_subnet:
+      resource_group: "{{ resource_group }}"
+      name: "{{ subnet_name }}"
+      address_prefix: "10.0.1.0/24"
+      virtual_network: "{{ vnet_name }}"
+
+  - name: Create public IP address
+    azure_rm_publicipaddress:
+      resource_group: "{{ resource_group }}"
+      allocation_method: Static
+      name: "{{ public_ip }}"
+    register: output_ip_address
+
+  - name: Dump public IP for VM which will be created
+    debug:
+      msg: "The public IP is {{ output_ip_address.state.ip_address }}."
+
+  - name: Create Network Security Group that allows SSH
+    azure_rm_securitygroup:
+      resource_group: "{{ resource_group }}"
+      name: myNetworkSecurityGroup
+      rules:
+        - name: SSH
+          protocol: Tcp
+          destination_port_range: 22
+          access: Allow
+          priority: 1001
+          direction: Inbound
+
+
+  - name: Create virtual network interface card
+    azure_rm_networkinterface:
+      resource_group: "{{ resource_group }}"
+      name: myNIC
+      virtual_network: "{{ vnet_name }}"
+      subnet: "{{ subnet_name }}"
+      public_ip_name: "{{ public_ip }}"
+      security_group: myNetworkSecurityGroup
+    register: network_interfaces
+  - name: Dump private IP for VM which will be created
+    debug:
+      msg: "The private IP is {{ network_interfaces.state.ip_configuration.private_ip_address }}."
+
+  - name: Create VM
+    azure_rm_virtualmachine:
+      resource_group: "{{ resource_group }}"
+      name: "{{ vm_name }}"
+      vm_size: "{{ vm_size }}"
+      admin_username: "{{ admin_username }}"
+      admin_password : "{{ admin_password }}"
+      network_interfaces: myNIC
+      image:
+        name: "{{ image_name }}"
+        resource_group: "{{ resource_group }}"
+      managed_disk_type: Standard_LRS
+    tags: vm_creation
+    register: vm
+
+  - name: Dump VM Info which will be created
+    debug:
+     msg: "The VM Name is {{ vm.ansible_facts.azure_vm.name }}."

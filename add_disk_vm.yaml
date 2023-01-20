@@ -1,0 +1,32 @@
+- name: Add Disk to VM
+  hosts: localhost
+  become: yes
+  vars:
+    resource_group: rgs3
+    location: eastus
+    vm_name: Demo-VM
+    disk_size_gb: 32
+    
+  tasks:
+  - name: Mount the managed disk to VM
+    azure_rm_managed_disk:
+      name: mydisk
+      location: "{{ location }}"
+      resource_group: "{{ resource_group }}"
+      disk_size_gb: "{{ disk_size_gb }}"
+      managed_by: "{{ vm_name }}"
+      attach_caching: read_write
+
+# Add Extra Disk
+
+  # - name: Mount the managed disk to VM
+  #   azure_rm_managed_disk:
+  #     name: mydisk
+  #     location: "{{ location }}"
+  #     resource_group: "{{ resource_group }}"
+  #     disk_size_gb: "{{ disk_size_gb }}"
+  #     managed_by: "{{ vm_name }}"
+  #     attach_caching: read_write
+  
+
+

@@ -1,0 +1,41 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    resource_group: rgs3
+    lb_name: apache
+    location: eastus
+    public_ip: apacheip
+    backend_pool: Demo-VM
+
+  tasks:
+  - name: Create public IP address
+    azure_rm_publicipaddress:
+     resource_group: "{{ resource_group }}"
+     name: "{{ public_ip }}"
+
+  - name: create load balancer
+    azure_rm_loadbalancer:
+      name: "{{ lb_name }}lb"
+      location: "{{ location }}"
+      resource_group: "{{ resource_group }}"
+      sku: Standard
+      frontend_ip_configurations:
+        - name: "frontendip0"
+          public_ip_address: "{{ public_ip }}"
+      backend_address_pools:
+        - name: "{{ backend_pool }}"
+      probes:
+        - name: "prob0"
+          port: 80
+          interval: 10
+          fail_count: 3
+      load_balancing_rules:
+        - name: "lbr"
+          frontend_ip_configuration: "frontendip0"
+          backend_address_pool: "{{ backend_pool }}"
+          frontend_port: 80
+          backend_port: 80
+          load_distribution: Default
+          probe: "prob0"
+

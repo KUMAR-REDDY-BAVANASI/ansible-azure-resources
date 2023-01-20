@@ -1,0 +1,30 @@
+# Update rules on existing security group
+- name: Update rules on existing security group
+  hosts: localhost
+  vars:
+    resource_group: rgs3
+    vm_name: Demo_VM
+
+  tasks:
+  - name: Create Network Security Group that allows SSH and 80
+    azure_rm_securitygroup:
+      resource_group: "{{ resource_group }}"
+      name: "{{ vm_name }}"
+      purge_rules: yes
+      rules:
+        - name: 'AllowSSH'
+          protocol: Tcp
+          source_address_prefix: '103.135.169.0/24'
+          destination_port_range: 22
+          access: Allow
+          priority: 101
+          direction: Inbound
+          
+        - name: AllowSSHFromHome
+          protocol: Tcp
+          source_address_prefix: '103.135.169.0/24'
+          destination_port_range: 80
+          access: Allow
+          priority: 102
+          direction: Inbound
+
