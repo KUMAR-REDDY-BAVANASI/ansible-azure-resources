@@ -7,8 +7,8 @@
     aks_name: Testing
     vnet_subnet_id: "/subscriptions/02ac19d2-71ae-471d-b697-97daef2db017/resourceGroups/rgs/providers/Microsoft.Network/virtualNetworks/aks_vnet/subnets/aks_vnet"
     ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDPWhGbAfM3ooivAVAqAlM6mo/QVVb+6Rma9AatE0ioK0K6zwe99fg5XqqvgSCSgRGGA9WDoMfVBtU9RRSsJytOBSBvzdeZIRsEkOLnn5qA3WETuBjJVI9dH6EDI61ZO33Tva1UoPFhINBhgh3F5vj+5BQ6Etn104Lq9A1VEy2PHU9Za6mokvpDO0ElPr4lUd5eFlwJgNYfkIjYV7TosbM1v0/jbfC5T6eYm0NT0V3ws59UcGwdMzdGXj7Y7Xqk0y3ST02lVco9VgLG55BR5BGC9nRRxrJO/q4W3Mma/CfT9QSKBOvQdEsr+Ek1FkM2iRVUpet/xgVu577qgIm/y6Qbcf6l9YKmKsn1FKWBqfWG1GlmC6Yk+WjWS9+xBKUkzsOGSaeSqLtMIk0RJCfbXlAIMDUhxtUHcK4Ld5IwqhtAGkDa/yFqYcJk9kxOTt4cdmArlgA6XyU0qvPqHQcJYtvUwAYZF27Zo30k4Vv3aJ15cg7tlxGeONakd2jINfAqXgc= generated-by-azure"
-    client_id: "9a8e6324-d089-4e0e-9813-aa3f1033bf97"
-    client_secret: "AOABcdS6o-~Dr~-pF2kkMvRG5Dkk5Vp05B"
+    client_id: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    client_secret: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     aks_version: 1.19.9
     vnet_name: aks_vnet 
 

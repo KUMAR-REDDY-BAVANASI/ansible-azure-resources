@@ -5,7 +5,7 @@
     location: east us  
     vm_name: Demo-VM
     resource_group: rgs3
-    vm_disk_id: "/subscriptions/02ac19d2-71ae-471d-b697-97daef2db017/resourceGroups/RGS3/providers/Microsoft.Compute/disks/Demo-VM"
+    vm_disk_id: "/subscriptions/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/resourceGroups/RGS3/providers/Microsoft.Compute/disks/Demo-VM"
 
   tasks:
     - name: Create image rg
